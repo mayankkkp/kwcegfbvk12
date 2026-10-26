@@ -57,9 +57,9 @@ wind-forecast-app/
 ├── vercel.json                  # Vercel Services routing (frontend + backend)
 └── README.md
 
----text
 
-### How to start the application
+
+## How to start the application
 
 #### Option A — Docker (recommended)
 Requires Docker Desktop (Linux containers mode).
