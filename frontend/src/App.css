@@ -1,0 +1,8 @@
+.container { max-width: 1200px; margin: 0 auto; padding: 2rem; font-family: sans-serif; }
+.subtitle { color: #666; margin-bottom: 2rem; }
+.card { background: #f9f9f9; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid #eee; }
+.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.metric { display: flex; flex-direction: column; }
+.metric .label { font-size: 0.9rem; color: #666; }
+.metric .value { font-size: 1.5rem; font-weight: bold; }
+.error { color: red; }

@@ -1,0 +1,27 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Environment / secrets
+.env
+.env.local
+*.key
+
+# Logs
+*.log
+npm-debug.log*
+
+# Python (catch-all in case backend/.gitignore is missed)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Node (catch-all in case frontend/.gitignore is missed)
+node_modules/
+dist/
+
+# Docker
+*.pid
