@@ -3,7 +3,6 @@ import ForecastChart from './components/ForecastChart';
 import ErrorMetrics from './components/ErrorMetrics';
 import './App.css';
 
-// Default range: a historical month with published data
 const DEFAULT_START = '2025-01-01';
 const DEFAULT_END = '2025-01-31';
 
@@ -25,6 +24,12 @@ function App() {
         throw new Error(body.detail || `Request failed (${res.status})`);
       }
       const json = await res.json();
+      
+      // Check if the backend returned empty data
+      if (!json.range) {
+        throw new Error("The server took too long to respond or returned empty data. Please try again.");
+      }
+      
       setData(json);
     } catch (err) {
       setError(err.message);
@@ -34,7 +39,6 @@ function App() {
     }
   }, [start, end]);
 
-  // Initial load
   useEffect(() => {
     runAnalysis();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,7 +85,7 @@ function App() {
       {error && <div className="card error">Error: {error}</div>}
 
       {loading && !data && (
-        <div className="loading">Loading analysis for {start} → {end}</div>
+        <div className="loading">Loading analysis for {start} → {end} (this may take up to 30 seconds on Vercel)</div>
       )}
 
       {data && (
@@ -89,14 +93,14 @@ function App() {
           <div className="card">
             <h2>Forecast Error Metrics</h2>
             <p className="range-note">
-              Range: {data.range.start} → {data.range.end}
+              Range: {data.range?.start || start} → {data.range?.end || end}
             </p>
-            <ErrorMetrics metrics={data.metrics} />
+            <ErrorMetrics metrics={data.metrics || {}} />
           </div>
 
           <div className="card">
             <h2>Actual vs Forecast (sample)</h2>
-            <ForecastChart data={data.chart_data} />
+            <ForecastChart data={data.chart_data || []} />
           </div>
         </>
       )}

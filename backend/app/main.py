@@ -1,46 +1,65 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from app.elexon_service import fetch_fuelhh_wind, fetch_windfor_forecasts
 from app.analysis import align_forecasts_to_actuals, compute_metrics
-import pandas as pd
+from datetime import date, timedelta
 
 app = FastAPI(title="Wind Forecast Analysis API")
 
+# --- ADD CACHE HERE ---
+_cache = {}
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "https://your-app.vercel.app",
-    ],
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Cache data for simplicity in this demo
-_cache = {}
-
 @app.get("/api/analysis")
-async def get_analysis():
-    """Fetches data for Jan 2026, aligns, and returns metrics + timeseries."""
-    # Use the full month of January 2026
-    start = "2026-01-01"
-    end = "2026-01-31"
-    
+async def get_analysis(
+    start: str = Query(default="2025-01-01"),
+    end: str = Query(default="2025-01-31"),
+):
+    """
+    Fetch actuals and forecasts for the given range, align them, return metrics + chart data.
+    start / end are ISO dates (YYYY-MM-DD). Range is capped at 31 days to keep requests bounded.
+    """
+    # Validate date format
     try:
-        # In a real app, you would handle pagination/limits here
+        start_d = date.fromisoformat(start)
+        end_d = date.fromisoformat(end)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Dates must be in YYYY-MM-DD format")
+
+    if end_d <= start_d:
+        raise HTTPException(status_code=400, detail="end must be after start")
+
+    if (end_d - start_d).days > 31:
+        raise HTTPException(status_code=400, detail="Date range must not exceed 31 days")
+
+    # Elexon cannot have data for future dates — clamp end to today
+    today = date.today()
+    if start_d > today:
+        raise HTTPException(status_code=400, detail="Start date is in the future; no data exists")
+
+    try:
         df_actuals = await fetch_fuelhh_wind(start, end)
         df_forecasts = await fetch_windfor_forecasts(start, end)
-        
+
         aligned = align_forecasts_to_actuals(df_actuals, df_forecasts, decision_hour_offset=12)
         metrics = compute_metrics(aligned)
-        
-        # Prepare data for the chart (limit to a sample if too large, e.g., first 100 points)
-        chart_data = aligned[["startTime", "actual_mw", "forecast_mw"]].head(100).to_dict(orient="records")
-        
+
+        # Cap chart at ~200 points so the response stays light
+        chart_data = aligned[["startTime", "actual_mw", "forecast_mw"]].head(200).to_dict(orient="records")
+        # Convert timestamps to ISO strings for JSON
+        for row in chart_data:
+            row["startTime"] = row["startTime"].isoformat()
+
         return {
             "metrics": metrics,
             "chart_data": chart_data,
-            "message": "Data processed successfully"
+            "range": {"start": start, "end": end},
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
