@@ -1,8 +1,223 @@
-.container { max-width: 1200px; margin: 0 auto; padding: 2rem; font-family: sans-serif; }
-.subtitle { color: #666; margin-bottom: 2rem; }
-.card { background: #f9f9f9; border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid #eee; }
-.metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
-.metric { display: flex; flex-direction: column; }
-.metric .label { font-size: 0.9rem; color: #666; }
-.metric .value { font-size: 1.5rem; font-weight: bold; }
-.error { color: red; }
+/* ============ Reset & base ============ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #f4f6f9;
+  color: #1f2937;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ============ Layout ============ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ============ Header ============ */
+.app-header {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+  color: white;
+  padding: 2rem 1.5rem;
+  margin: -2rem -1.5rem 2rem;
+  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.15);
+}
+
+.app-header h1 {
+  margin: 0 0 0.4rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.app-header .subtitle {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+}
+
+/* ============ Date form ============ */
+.date-form {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  background: white;
+  padding: 1.25rem 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  margin-bottom: 1.5rem;
+}
+
+.date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.date-field label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6b7280;
+}
+
+.date-field input {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: #111827;
+  background: #fff;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.date-field input:focus {
+  outline: none;
+  border-color: #1e40af;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.date-form button {
+  padding: 0.6rem 1.4rem;
+  background: #1e40af;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.05s;
+}
+
+.date-form button:hover:not(:disabled) {
+  background: #1e3a8a;
+}
+
+.date-form button:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.date-form button:disabled {
+  background: #93a5c9;
+  cursor: not-allowed;
+}
+
+/* ============ Cards ============ */
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.card h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+  letter-spacing: -0.01em;
+}
+
+.range-note {
+  margin: 0 0 1.25rem;
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* ============ Metrics grid ============ */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.metric {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.metric .label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #6b7280;
+}
+
+.metric .value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111827;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.metric .value.good { color: #059669; }
+.metric .value.caution { color: #d97706; }
+.metric .value.risk { color: #dc2626; }
+
+.metric .unit {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #9ca3af;
+  margin-left: 0.25rem;
+}
+
+/* ============ Error card ============ */
+.card.error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  font-size: 0.95rem;
+}
+
+/* ============ Loading ============ */
+.loading {
+  background: white;
+  border-radius: 10px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.loading::after {
+  content: '';
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-left: 0.5rem;
+  border: 2px solid #d1d5db;
+  border-top-color: #1e40af;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: -2px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============ Responsive ============ */
+@media (max-width: 640px) {
+  .container { padding: 1rem; }
+  .app-header { margin: -1rem -1rem 1.5rem; padding: 1.5rem 1rem; }
+  .app-header h1 { font-size: 1.25rem; }
+  .date-form { padding: 1rem; }
+  .metric .value { font-size: 1.35rem; }
+}
